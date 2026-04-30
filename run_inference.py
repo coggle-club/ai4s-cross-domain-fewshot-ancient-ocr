@@ -4,20 +4,16 @@ from pathlib import Path
 from PIL import Image
 
 import numpy as np
-import cv2
 from joblib import dump, load
 import json
 
 import torch
-import ultralytics
 from ultralytics import YOLO
 
-import os, sys, codecs, glob
-from PIL import Image, ImageDraw
+from PIL import Image
 
 import numpy as np
 import pandas as pd
-import cv2
 import glob
 
 import torch
@@ -91,7 +87,6 @@ def main():
     
     results_json = {}
     for img_path in sorted(input_dir.glob("*.png")):
-        img = cv2.imread(img_path)
         results = model1.predict(img_path)
         boxes = results[0].boxes.xywh.data.cpu().numpy().astype(int)
         
