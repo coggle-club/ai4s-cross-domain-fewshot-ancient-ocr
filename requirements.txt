@@ -1,0 +1,11 @@
+joblib
+numpy
+opencv_contrib_python
+opencv_python
+pandas
+Pillow
+scikit_learn
+timm
+torch
+torchvision
+ultralytics==8.3.168
