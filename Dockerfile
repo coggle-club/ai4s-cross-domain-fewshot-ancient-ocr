@@ -14,7 +14,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app/src/
-RUN chmod +x /app/src/run.sh
+COPY . /app/
+COPY run.sh /app/run.sh
+RUN chmod +x /app/run.sh
 
-ENTRYPOINT ["/sbin/tini", "--", "bash", "/app/src/run.sh"]
+ENTRYPOINT ["/sbin/tini", "--", "bash", "/app/run.sh"]
