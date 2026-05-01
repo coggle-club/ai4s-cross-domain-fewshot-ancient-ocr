@@ -20,7 +20,7 @@ RUN mkdir -p /app /saisresult && \
         libxcb-render0 \
         libxcb-xkb1 \
         libxkbcommon-x11-0 \
-        libgl1-mesa-glx \
+        libgl1 \
         libglib2.0-0 \
         libsm6 \
         libxext6 \
