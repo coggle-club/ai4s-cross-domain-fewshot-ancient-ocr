@@ -110,7 +110,7 @@ def main():
         for i in range(len(dataset)):
             text = id2label[lbl.inverse_transform([model2(dataset[i].reshape(1, 3, 128, 128))[0].argmax()])[0]]
             results_json[image_id].append({
-                "box": list([int(x) for x in boxes[i]]),
+                "bbox": list([int(x) for x in boxes[i]]),
                 "text": text
             })
             print(image_id, list(boxes[i]), text)
