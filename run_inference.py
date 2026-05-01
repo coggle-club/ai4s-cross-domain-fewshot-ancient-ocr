@@ -80,7 +80,7 @@ def main():
     model1 = YOLO("./detect.pt")
     
     model2 = Ai4SNet()
-    model2.load_state_dict(torch.load("cls.pt"))
+    model2.load_state_dict(torch.load("cls.pt", map_location=torch.device('cpu')))
     model2.eval()
     
     id2label = json.load(open("ID_to_chinese.json"))
