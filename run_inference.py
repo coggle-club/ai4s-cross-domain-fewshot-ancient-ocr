@@ -34,42 +34,6 @@ from sklearn.preprocessing import LabelEncoder
 import timm
 import math
 
-lbl = load("lbl.pkl")
-
-class Ai4SNet(nn.Module):
-    def __init__(self):
-        super(Ai4SNet, self).__init__()    
-        self.model = timm.create_model('efficientnet_b0', num_classes=len(lbl.classes_), pretrained=False)
-        
-    def forward(self, img, labels=None):        
-        feat = self.model(img)
-        return feat
-
-class AI4sDataset(Dataset):
-    def __init__(self, img_path, img_boxes, transform):
-        self.img_path = img_path
-        self.img_boxes = img_boxes
-        self.transform = transform
-
-    def __getitem__(self, index):
-        img = Image.open(self.img_path).convert('RGB')
-        
-        x, y, w, h = self.img_boxes[index]
-
-        left = x
-        top = y
-        right = x + w
-        bottom = y + h
-        img = img.crop((left, top, right, bottom))
-        
-        if self.transform is not None:
-            img = self.transform(img)
-        
-        return img
-
-    def __len__(self):
-        return len(self.img_boxes)
-
 def main():
     input_dir = Path("/saisdata")
     output_file = Path("/saisresult/prediction.json")
@@ -78,27 +42,13 @@ def main():
     # output_file = Path("./prediction.json")
 
     model1 = YOLO("./detect.pt")
-    
-    model2 = Ai4SNet()
-    model2.load_state_dict(torch.load("cls.pt", map_location=torch.device('cpu')))
-    model2.eval()
-    
-    id2label = json.load(open("ID_to_chinese.json"))
-    
+        
     results_json = {}
-    for img_path in sorted(input_dir.glob("*.png")):
+    for img_path in sorted(list(input_dir.glob("*.png")) + list(input_dir.glob("*.jpg"))):
         results = model1.predict(img_path)
         boxes = results[0].boxes.xywh.data.cpu().numpy().astype(int)
-        
-        dataset = AI4sDataset(
-            img_path, 
-            boxes,
-            transforms.Compose([
-                transforms.Resize((128, 128)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ])
-        )
+        cls_ids = results[0].boxes.cls  # Class IDs
+        cls_names = [results[0].names[int(id)] for id in cls_ids]  # Class names
         
         image_id = img_path.stem
         # TODO: 模型推理代码
@@ -107,13 +57,12 @@ def main():
         # ]
 
         results_json[image_id] = []
-        for i in range(len(dataset)):
-            text = id2label[lbl.inverse_transform([model2(dataset[i].reshape(1, 3, 128, 128))[0].argmax()])[0]]
+        for xywh, label in zip(boxes, cls_names):
             results_json[image_id].append({
-                "bbox": list([int(x) for x in boxes[i]]),
-                "text": text
+                "bbox": list([int(x) for x in xywh]),
+                "text": label
             })
-            print(image_id, list(boxes[i]), text)
+            print(image_id, xywh, label)
         
 
     with open(output_file, 'w', encoding='utf-8') as f:
