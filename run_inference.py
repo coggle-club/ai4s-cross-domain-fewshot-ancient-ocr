@@ -39,7 +39,7 @@ lbl = load("lbl.pkl")
 class Ai4SNet(nn.Module):
     def __init__(self):
         super(Ai4SNet, self).__init__()    
-        self.model = timm.create_model('efficientnet_b0', num_classes=len(lbl.classes_), pretrained=True)
+        self.model = timm.create_model('efficientnet_b0', num_classes=len(lbl.classes_), pretrained=False)
         
     def forward(self, img, labels=None):        
         feat = self.model(img)
